@@ -1,0 +1,184 @@
+<div class="d-flex flex-row justify-content-center align-items-center" style="margin-top: 25px">
+  <div class="col-md-4 col-sm-12">
+    <div style="">
+        <img src="assets/ebayHome.png" class="img-fluid">
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="row justify-content-center align-items-center">
+    <div class="col-md-2">
+      <div style="font-weight: bold; padding-bottom:25px;">Key words<span style="color: #FF0504">*</span></div>
+    </div>
+    <div class="col-md-6">
+      <input type="text" placeholder="Enter keywords" [(ngModel)]='keyWords' id="keyWords" style="width:100%; margin-bottom:15px;">
+    </div>
+  </div>
+  <div class="row justify-content-center align-items-center form-group">
+    <div class="col-md-2">
+      <div style="font-weight: bold; padding-bottom:15px;">Price Range</div>
+    </div>
+    <div style="margin-bottom:10px;" class="col-md-6">
+        <input placeholder="Min Price" [(ngModel)]='minPrice' type="text" class="col-5" id="minPrice">
+        <input placeholder="Max Price" [(ngModel)]='maxPrice' type="text" class="col-5 offset-md-2" id="maxPrice">
+    </div>
+  </div>
+  <div class="row justify-content-center align-items-center">
+    <div class="col-md-2">
+      <div style="font-weight: bold; padding-bottom:15px;">Condition</div>
+    </div>
+    <div class="col-md-6">
+      <div style="margin-bottom:10px;">
+          <input [(ngModel)]='isNew' type="checkbox"id="newCheckBox">
+          <label style="font-weight: bold; padding-right:6px">New</label>
+          <input [(ngModel)]='isUsed' type="checkbox" id="usedCheckBox">
+          <label style="font-weight: bold; padding-right:6px">Used</label>
+          <input [(ngModel)]='isVGood' type="checkbox" id="vGoodCheckBox">
+          <label style="font-weight: bold; padding-right:6px">Very Good</label>
+          <input [(ngModel)]='isGood' type="checkbox" id="goodCheckBox">
+          <label style="font-weight: bold; padding-right:6px">Good</label>
+          <input [(ngModel)]='isAcceptable' type="checkbox" id="acceptableCheckBox">
+          <label style="font-weight: bold; ">Acceptable</label>
+      </div>
+    </div>
+  </div>
+  <div class="row justify-content-center align-items-center">
+    <div class="col-md-2">
+      <div style="font-weight: bold; padding-bottom:15px;">Seller</div>
+    </div>
+    <div class="col-md-6">
+      <div style="margin-bottom:10px">
+          <input [(ngModel)]='isReturnAccepted' type="checkbox" id="returnAccepted">
+          <label style="font-weight: bold;">Return Accepted</label>
+      </div>
+    </div>
+  </div>
+  <div class="row justify-content-center align-items-center">
+    <div class="col-md-2">
+      <div style="font-weight: bold; padding-bottom:15px;">Shipping</div>
+    </div>
+    <div class="col-md-6">
+        <input [(ngModel)]='isFreeShipping' type="checkbox" id="freeShipping">
+        <label style="font-weight: bold; padding-right:6px">Free</label>
+        <input [(ngModel)]='isExpeditedShipping' type="checkbox" id="expeditedShipping">
+        <label style="font-weight: bold; padding-right:6px">Expedited</label>
+    </div>
+  </div>
+  <div class="row justify-content-center align-items-center">
+    <div class="col-md-2">
+      <div style="font-weight: bold">Sort Order</div>
+    </div>
+    <div class="col-md-6">
+      <select [(ngModel)]='selectedSortByValue' id="sortBy" style="width:100%; margin-bottom:10px">
+          <option *ngFor="let sortByValue of sortByValueStrings" [value]="sortByValue">{{sortByValue}}</option>
+      </select>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-10" >
+      <button mat-button class="btn btn-secondary float-right" (click)="reset()"><mat-icon>clear_all</mat-icon>Clear</button>
+      <button (click)="search()" class="btn btn-primary float-right" mat-button style="margin-right: 10px"><mat-icon>search</mat-icon>Search</button>
+    </div>
+  </div>
+  <div class="row justify-content-center align-items-center" style="margin-top: 20px" *ngFor="let error of errorsList; index as i">
+    <div style="background-color: lightyellow; height: 40px" class=" row justify-content-center align-items-center col-8">
+      <div style="font-weight: bold">{{ error }}</div>
+    </div>
+  </div>
+</div>
+
+<div id="results-container" *ngIf="resultsObj" style="margin-top: 50px">
+  <div class="row justify-content-center align-items-center">
+    <div class="col-md-3 col-xs-12">
+      <div style="font-weight: bold; font-size: 20px">Results for {{keyWords}}</div>
+    </div>
+    <div class="col-md-5 col-xs-12">
+        <pagination-controls (pageChange)="pageChanged($event)"></pagination-controls>
+      </div>
+  </div>
+  <div class="row">
+    <div class="mx-auto col-md-8 col-xs-12" >
+      <div class="card" *ngFor="let item of itemsList | paginate: config" style="margin-bottom:15px;">
+
+        <div class="card-header row form-group" style="display: flex;">
+          <div class="col-md-3 col-xs-12" style="">
+            <img src="{{item.image}}">
+          </div>
+          <div class="col-md-8 col-xs-12" style="">
+            <a href="{{item.url}}" target="_blank"><h2 class="card-title col-xs-12" style="color : blue;">{{item.title}}</h2></a>
+            <p class="card-text col-xs-12"><span style="font-weight: bold">Price: </span>{{item.price}}</p>
+            <div style="display: inline;" class="col-xs-12">
+              <div class="card-text" style="font-style: italic; display: inline">{{item.from}}</div>
+              <button (click)="toggleDetails(item.id)" class="btn btn-light" *ngIf="! item.showDetails" mat-button style="margin-left: 10px; display: inline">Show Details</button>
+              <button (click)="toggleDetails(item.id)" class="btn btn-light" *ngIf="item.showDetails" mat-button style="margin-left: 10px; display: inline">Hide Details</button>
+            </div>
+            <div *ngIf="item.showDetails">
+              <mat-tab-group>
+                <mat-tab label="Basic Info">
+                  <div class="row">
+                    <div class="col-md-4 col-xs-4" style="font-weight: bold">Category Name</div>
+                    <div class="col-md-6 col-xs-6">{{item.category}}</div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-4 col-xs-4" style="font-weight: bold">Condition</div>
+                    <div class="col-md-4 col-xs-4">{{item.condition}}</div>
+                  </div>
+                </mat-tab>
+                <mat-tab label="Shipping Info">
+                  <div class="row">
+                    <div class="col-md-5 col-xs-5" style="font-weight: bold">ShippingType</div>
+                    <div class="col-md-4 col-xs-4">{{item.shippingType}}</div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-5 col-xs-5" style="font-weight: bold">Shipping cost</div>
+                    <div class="col-md-4 col-xs-4">{{item.shippingCost}}</div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-5 col-xs-5" style="font-weight: bold">Shiptolocations</div>
+                    <div class="col-md-4 col-xs-4">{{item.shipToLocations}}</div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-5 col-xs-5" style="font-weight: bold">ExpeditedShipping</div>
+                    <div class="col-md-4 col-xs-4"><mat-icon style="color: green" *ngIf="item.expeditedShip === 'true'">done</mat-icon><mat-icon style="color: red" *ngIf="item.expeditedShip === 'false'">close</mat-icon></div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-5 col-xs-5" style="font-weight: bold">OneDayShippingAvailable</div>
+                    <div class="col-md-4 col-xs-4"><mat-icon style="color: green" *ngIf="item.oneDayShip === 'true'">done</mat-icon><mat-icon style="color: red" *ngIf="item.oneDayShip === 'false'">close</mat-icon></div>
+                  </div>
+                </mat-tab>
+                <mat-tab label="Listing Info">
+                  <div class="row">
+                    <div class="col-md-4 col-xs-4" style="font-weight: bold">BestOfferEnabled</div>
+                    <div class="col-md-4 col-xs-4"><mat-icon style="color: green" *ngIf="item.bestOffer === 'true'">done</mat-icon><mat-icon style="color: red" *ngIf="item.bestOffer === 'false'">close</mat-icon></div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-4 col-xs-4" style="font-weight: bold">BuyItNowAvailable</div>
+                    <div class="col-md-4 col-xs-4"><mat-icon style="color: green" *ngIf="item.buyItNow === 'true'">done</mat-icon><mat-icon style="color: red" *ngIf="item.buyItNow === 'false'">close</mat-icon></div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-4 col-xs-4" style="font-weight: bold">ListingType</div>
+                    <div class="col-md-4 col-xs-4">{{item.listingType}}</div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-4 col-xs-4" style="font-weight: bold">Gift</div>
+                    <div class="col-md-4 col-xs-4"><mat-icon style="color: green" *ngIf="item.gift === 'true'">done</mat-icon><mat-icon style="color: red" *ngIf="item.gift === 'false'">close</mat-icon></div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-4 col-xs-4" style="font-weight: bold">WatchCount</div>
+                    <div class="col-md-4 col-xs-4">{{item.watchCount}}</div>
+                  </div>
+                </mat-tab>
+              </mat-tab-group>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+<router-outlet></router-outlet>
